@@ -1,0 +1,38 @@
+name: 'Create DNS record'
+defaults:
+  run:
+    shell: bash
+    working-directory: 'terraform'
+on:
+  push:
+    branches:
+      - 'main'
+jobs:
+  run:
+    name: 'Create DNS record'
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout Code
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          workload_identity_provider: 'projects/276772502475/locations/global/workloadIdentityPools/gh-oidc-pool/providers/gh-oidc-provider'
+          service_account: 'selling-dns-manager@ingka-selling-dns-prod.iam.gserviceaccount.com'
+          token_format: 'access_token'
+
+      - uses: hashicorp/setup-terraform@v1
+        name: Install terraform
+
+      - name: Terraform Init
+        run: terraform init -backend-config=config/backend.tfvars
+
+      - name: Terraform Plan
+        run: terraform plan -var-file=config/config.tfvars
+
+      - name: Terraform Apply
+        run: terraform apply  -var-file=config/config.tfvars -auto-approve -input=false
