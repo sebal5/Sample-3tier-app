@@ -1,38 +1,27 @@
-name: 'Create DNS record'
-defaults:
-  run:
-    shell: bash
-    working-directory: 'terraform'
+name: Test
+
 on:
   push:
     branches:
       - 'main'
 jobs:
-  run:
-    name: 'Create DNS record'
-    permissions:
-      id-token: write
-      contents: read
-    runs-on: 'ubuntu-latest'
+  build:
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        name: Checkout Code
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v1'
-        with:
-          workload_identity_provider: 'projects/276772502475/locations/global/workloadIdentityPools/gh-oidc-pool/providers/gh-oidc-provider'
-          service_account: 'selling-dns-manager@ingka-selling-dns-prod.iam.gserviceaccount.com'
-          token_format: 'access_token'
+    - uses: actions/checkout@v3
 
-      - uses: hashicorp/setup-terraform@v1
-        name: Install terraform
+    - name: Setup gcloud
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        version: '290.0.1'
+        service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }} 
+        project_id: ${{ secrets.GCP_PROJECT_ID }} 
 
-      - name: Terraform Init
-        run: terraform init -backend-config=config/backend.tfvars
+    - name: Configure docker for GCP
+      run: gcloud auth configure-docker
 
-      - name: Terraform Plan
-        run: terraform plan -var-file=config/config.tfvars
+    - name: Build docker image
+      run:  docker build -t europe-west4-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/sample-web-app/web-app:latest . 
 
-      - name: Terraform Apply
-        run: terraform apply  -var-file=config/config.tfvars -auto-approve -input=false
+    - name: Push to Google Artifact Registry
+      run:  docker push europe-west4-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/sample-web-app/web-app:latest
