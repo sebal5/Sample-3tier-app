@@ -8,17 +8,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-    - name: Setup gcloud
-      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v1
       with:
-        version: '290.0.1'
-        service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }} 
-        project_id: ${{ secrets.GCP_PROJECT_ID }} 
+        credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
     - name: Configure docker for GCP
-      run: gcloud auth configure-docker
+      run: gcloud auth configure-docker --quiet
 
     - name: Build docker image
       run:  docker build -t europe-west4-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/sample-web-app/web-app:latest . 
