@@ -20,7 +20,7 @@ jobs:
       run: gcloud auth configure-docker --quiet
 
     - name: Build docker image
-      run:  docker build -t europe-west4-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/sample-web-app/web-app:latest --file ./web/Dockerfile
+      run:  docker build -file ./web/Dockerfile -t europe-west4-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/sample-web-app/web-app:latest 
        
     - name: Push to Google Artifact Registry
       run:  docker push europe-west4-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/sample-web-app/web-app:latest
