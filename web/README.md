@@ -1,4 +1,4 @@
-# Devops Web App with GHA
+# Devops Web App 
 
 ### install the node packages for the web tier:
 ```sh
