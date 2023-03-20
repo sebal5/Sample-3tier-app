@@ -21,9 +21,8 @@ jobs:
 
     - name: Build docker image
       run:  |
-       ls
-       pwd
-       docker build -file ./web/Dockerfile -t europe-west4-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/sample-web-app/web-app:latest 
+       cd web
+       docker build . -t europe-west4-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/sample-web-app/web-app:latest 
        
     - name: Push to Google Artifact Registry
       run:  docker push europe-west4-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/sample-web-app/web-app:latest
