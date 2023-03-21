@@ -11,7 +11,7 @@ const conString = {
     host: process.env.DBHOST,
     port: process.env.DBPORT
 };
-
+// test
 // Routes
 app.get('/api/status', function(req, res) {
     //'SELECT now() as time', [], function(err, result
