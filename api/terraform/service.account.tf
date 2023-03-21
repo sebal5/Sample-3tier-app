@@ -12,6 +12,6 @@ resource "google_project_iam_member" "this" {
     ]
   )
   project = var.gcp_project
-  role               = each.value
-  member            = "serviceAccount:${google_service_account.this.email}"
+  role    = each.value
+  member  = "serviceAccount:${google_service_account.this.email}"
 }

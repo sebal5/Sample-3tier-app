@@ -15,6 +15,10 @@ resource "google_cloud_run_service" "this" {
     spec {
       containers {
         image = "europe-west4-docker.pkg.dev/toptal-381110/sample-web-app/${local.service_name}:latest"
+        env {
+          name  = "API_HOST"
+          value = "https://api-app-cloud-run-test-5zcrj3yclq-ez.a.run.app"
+        }
         resources {
           limits = {
             cpu    = "1000m"

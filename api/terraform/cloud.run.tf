@@ -6,15 +6,47 @@ resource "google_cloud_run_service" "this" {
   metadata {
     labels = local.tags
     annotations = {
-      "run.googleapis.com/client-name" = "terraform"
-      "run.googleapis.com/ingress"     = "all"
+      "run.googleapis.com/client-name"          = "terraform"
+      "autoscaling.knative.dev/maxScale"        = "5"
+      "run.googleapis.com/vpc-access-connector" = google_vpc_access_connector.this.name
+      "run.googleapis.com/cloudsql-instances"   = google_sql_database_instance.this.connection_name
+
     }
   }
 
   template {
+    metadata {
+      annotations = {
+        "run.googleapis.com/cloudsql-instances"   = google_sql_database_instance.this.connection_name
+        "run.googleapis.com/vpc-access-egress"    = "all-traffic"
+        "run.googleapis.com/vpc-access-connector" = google_vpc_access_connector.this.name
+      }
+    }
     spec {
       containers {
         image = "europe-west4-docker.pkg.dev/toptal-381110/sample-web-app/${local.service_name}:latest"
+        
+        env {
+          name  = "DBPORT"
+          value = "3306"
+        }
+
+        env {
+          name  = "DBUSER"
+          value = "db_user"
+        }
+        env {
+          name  = "DBPASS"
+          value = "postgres"
+        }
+        env {
+          name  = "DB"
+          value = "web-db"
+        }
+        env {
+          name  = "DBHOST"
+          value = google_sql_database_instance.this.connection_name
+        }
         resources {
           limits = {
             cpu    = "1000m"
